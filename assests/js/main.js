@@ -12,6 +12,38 @@ let Model = (() => {
       return board[key] = value;
     }
     
+    let isWinner = () => {
+      let player = [Const.playerX, Const.playerO]
+      for(let i = 0; i < player.length; i++){
+        for(let j = 0; j <= Const.winPositions.length; j++){
+          if(board[Const.winPositions[j][0]] === player[i] && 
+             board[Const.winPositions[j][1]] === player[i] && 
+             board[Const.winPositions[j][2]] === player[i]){
+             return player[i];
+            }else{
+             return false;
+          }
+        }
+      }
+    }
+    
+    let isTie = () => {
+      return (isWinner() && isValEmpty) ? true : false;
+    }
+    
+    let isValEmpty = () => {
+      let boardArr = Object.entries(board)
+      for (const [key, value] of boardArr) {
+        return (value === '') ? true : false;
+      }             
+    }
+    
+    let resetBoard = () => {
+      for (let index = 1; index <= Const.mapLength ; index++){
+        board[index] = '';
+      }
+    }
+    
 })();
 
 const Const = {
