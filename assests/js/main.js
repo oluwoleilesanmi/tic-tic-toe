@@ -20,15 +20,15 @@ let Model = (() => {
              board[Const.winPositions[j][1]] === player[i] && 
              board[Const.winPositions[j][2]] === player[i]){
              return player[i];
-            }else{
-             return false;
+            }
           }
         }
+       return false;
       }
     }
     
     let isTie = () => {
-      return (isWinner() && isValEmpty) ? true : false;
+      return (!isWinner() && !isValEmpty) ? true : false;
     }
     
     let isValEmpty = () => {
