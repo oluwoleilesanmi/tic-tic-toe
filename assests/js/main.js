@@ -1,35 +1,46 @@
+let app = () => {};
+
+let Random = () => {
+  let getRandomInt = function() {
+    if (Math.floor(Math.random() * Math.floor(2)) === 0) {
+      return Const.playerIdo;
+    } else {
+      return Const.playerIdx;
+    }
+  };
+  return { getRandomInt };
+};
+
 let Player = playerName => {
-  let name = playerName;
   let map = new Map();
-  map.set(name, "");
-
   let setSymbol = symbol => {
-    map.set(name, symbol);
+    map.set(playerName, symbol);
   };
-
   let getSymbol = () => {
-    return map[name];
+    return map.get(playerName);
   };
-
   return { setSymbol, getSymbol };
 };
 
-let Random = (() => {
-  let map = { 0: "X", 1: "O" };
-
-  let getRandomInt = function() {
-    if (Math.floor(Math.random() * Math.floor(2)) === 0) {
-      return map["0"];
-    } else {
-      return map["1"];
-    }
-  };
-})();
-
-let app = () => {};
+const Constants = () => {
+  let winPositions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+  let playerIdx = "X";
+  let playerIdo = "O";
+  let mapLength = 9;
+  return { winPositions, playerIdo, playerIdx, mapLength };
+};
 
 let Model = (() => {
-  let board = { 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "" };
+  let board = ["", "", "", "", "", "", "", "", ""];
 
   let getValue = key => {
     return board[key];
@@ -40,7 +51,7 @@ let Model = (() => {
   };
 
   let isWinner = () => {
-    let player = [Const.playerX, Const.playerO];
+    let player = [Const.playerIdx, Const.playerIdo];
     for (let i = 0; i < player.length; i++) {
       for (let j = 0; j <= Const.winPositions.length; j++) {
         if (
@@ -73,19 +84,3 @@ let Model = (() => {
     return;
   };
 })();
-
-const Const = {
-  winPositions: [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
-    [1, 4, 7],
-    [2, 5, 8],
-    [3, 6, 9],
-    [1, 5, 9],
-    [3, 5, 7]
-  ],
-  playerX: "X",
-  playerO: "O",
-  mapLength: 9
-};

@@ -1,0 +1,25 @@
+.board {
+  display: grid;
+  width: 350px;
+  height: 350px;
+  margin: 0 auto;
+  color: #fff;
+  border: 2px solid #6b3e46;
+  border-radius: 3px;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+}
+
+.box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #6d2c4c;
+  border-radius: 2px;
+  font-size: 4rem;
+  cursor: pointer;
+}
+
+.button-container {
+  text-align: center;
+  margin-bottom: inherit;
+}
