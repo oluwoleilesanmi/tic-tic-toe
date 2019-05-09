@@ -65,7 +65,20 @@ let App = (nameA, nameB) => {
       } else if (e.target.matches(".box")) {
         alert("Click another tile!!!");
       }
+      gamePlayResult();
     });
+  };
+
+  let gamePlayResult = () => {
+    if (Model.isWinner()) {
+      if (playerA.getSymbol() === Model.isWinner()) {
+        alert("Winner is " + playerA.getPlayerName());
+      } else {
+        alert("Winner is " + playerB.getPlayerName());
+      }
+    } else if (Model.isTie()) {
+      alert("its a tie");
+    }
   };
 
   let setPlayerSymbol = () => {
@@ -91,7 +104,7 @@ let Model = (() => {
   let isWinner = () => {
     let player = [Consts.playerIdx, Consts.playerIdo];
     for (let i = 0; i < player.length; i++) {
-      for (let j = 0; j <= Consts.winPositions.length; j++) {
+      for (let j = 0; j < Consts.winPositions.length; j++) {
         if (
           board[Consts.winPositions[j][0]] === player[i] &&
           board[Consts.winPositions[j][1]] === player[i] &&
@@ -105,14 +118,15 @@ let Model = (() => {
   };
 
   let isTie = () => {
-    return !isWinner() && !isValEmpty ? true : false;
+    return !isWinner() && !isTileEmpty() ? true : false;
   };
 
-  let isValEmpty = () => {
-    let boardArr = Object.entries(board);
-    for (const [key, value] of boardArr) {
-      return value === "" ? true : false;
-    }
+  let isTileEmpty = () => {
+    let bol = false;
+    board.forEach(item => {
+      if (item === "") bol = true;
+    });
+    return bol;
   };
 
   let resetBoard = () => {
@@ -121,5 +135,5 @@ let Model = (() => {
     }
     return;
   };
-  return { getValue, setValue, isTie, resetBoard };
+  return { getValue, setValue, isTie, resetBoard, isWinner };
 })();
