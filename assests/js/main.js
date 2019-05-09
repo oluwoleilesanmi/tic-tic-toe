@@ -73,11 +73,17 @@ let App = (nameA, nameB) => {
     if (Model.isWinner()) {
       if (playerA.getSymbol() === Model.isWinner()) {
         alert("Winner is " + playerA.getPlayerName());
+        Model.resetBoard();
+        resetView();
       } else {
         alert("Winner is " + playerB.getPlayerName());
+        Model.resetBoard();
+        resetView();
       }
     } else if (Model.isTie()) {
       alert("its a tie");
+      Model.resetBoard();
+      resetView();
     }
   };
 
@@ -87,8 +93,19 @@ let App = (nameA, nameB) => {
       ? playerB.setSymbol(Consts.playerIdo)
       : playerB.setSymbol(Consts.playerIdx);
   };
+
+  let resetView = () => {
+    let box = document.querySelectorAll(".box");
+    for (let index = 0; index < box.length; index++) {
+      box[index].innerHTML = "";
+    }
+  };
   return { attachboardListener, setPlayerSymbol };
 };
+
+let app = App("wole", "ile");
+app.setPlayerSymbol();
+app.attachboardListener();
 
 let Model = (() => {
   let board = ["", "", "", "", "", "", "", "", ""];
@@ -130,10 +147,9 @@ let Model = (() => {
   };
 
   let resetBoard = () => {
-    for (let index = 1; index <= Consts.mapLength; index++) {
+    for (let index = 0; index < Consts.mapLength; index++) {
       board[index] = "";
     }
-    return;
   };
   return { getValue, setValue, isTie, resetBoard, isWinner };
 })();
