@@ -43,8 +43,30 @@ let Random = (() => {
 let App = (nameA, nameB) => {
   let playerA = Player(nameA);
   let playerB = Player(nameB);
+  let whoClicked = playerA.getPlayerName();
 
-  let attachboardListener = () => {};
+  let attachboardListener = () => {
+    document.addEventListener("click", e => {
+      let boardPosClicked = e.target.getAttribute("position"),
+        userInput = e.target.textContent;
+
+      userInput = Number(userInput);
+      boardPosClicked = Number(boardPosClicked);
+      if (e.target.matches(".box") && !isNaN(userInput)) {
+        if (whoClicked === playerA.getPlayerName()) {
+          e.target.textContent = playerA.getSymbol();
+          Model.setValue(boardPosClicked, playerA.getSymbol());
+          whoClicked = playerB.getPlayerName();
+        } else {
+          e.target.textContent = playerB.getSymbol();
+          Model.setValue(boardPosClicked, playerB.getSymbol());
+          whoClicked = playerA.getPlayerName();
+        }
+      } else if (e.target.matches(".box")) {
+        alert("Click another tile!!!");
+      }
+    });
+  };
 
   let setPlayerSymbol = () => {
     playerA.setSymbol(Random.getRandSymbol());
@@ -99,4 +121,5 @@ let Model = (() => {
     }
     return;
   };
+  return { getValue, setValue, isTie, resetBoard };
 })();

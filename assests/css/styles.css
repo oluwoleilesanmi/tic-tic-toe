@@ -13,10 +13,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid #6d2c4c;
+  border: 2px solid #6b3e46;
   border-radius: 2px;
   font-size: 4rem;
   cursor: pointer;
+  color: #492e3c;
 }
 
 .button-container {
