@@ -1,28 +1,4 @@
-let app = () => {};
-
-let Random = () => {
-  let getRandomInt = function() {
-    if (Math.floor(Math.random() * Math.floor(2)) === 0) {
-      return Const.playerIdo;
-    } else {
-      return Const.playerIdx;
-    }
-  };
-  return { getRandomInt };
-};
-
-let Player = playerName => {
-  let map = new Map();
-  let setSymbol = symbol => {
-    map.set(playerName, symbol);
-  };
-  let getSymbol = () => {
-    return map.get(playerName);
-  };
-  return { setSymbol, getSymbol };
-};
-
-const Constants = () => {
+const Consts = (() => {
   let winPositions = [
     [0, 1, 2],
     [3, 4, 5],
@@ -37,6 +13,46 @@ const Constants = () => {
   let playerIdo = "O";
   let mapLength = 9;
   return { winPositions, playerIdo, playerIdx, mapLength };
+})();
+
+let Player = playerName => {
+  let map = new Map();
+  let setSymbol = symbol => {
+    map.set(playerName, symbol);
+  };
+  let getSymbol = () => {
+    return map.get(playerName);
+  };
+  let getPlayerName = () => {
+    return playerName;
+  };
+  return { setSymbol, getSymbol, getPlayerName };
+};
+
+let Random = (() => {
+  let getRandSymbol = function() {
+    if (Math.floor(Math.random() * Math.floor(2)) === 0) {
+      return Consts.playerIdo;
+    } else {
+      return Consts.playerIdx;
+    }
+  };
+  return { getRandSymbol };
+})();
+
+let App = (nameA, nameB) => {
+  let playerA = Player(nameA);
+  let playerB = Player(nameB);
+
+  let attachboardListener = () => {};
+
+  let setPlayerSymbol = () => {
+    playerA.setSymbol(Random.getRandSymbol());
+    playerA.getSymbol() === Consts.playerIdx
+      ? playerB.setSymbol(Consts.playerIdo)
+      : playerB.setSymbol(Consts.playerIdx);
+  };
+  return { attachboardListener, setPlayerSymbol };
 };
 
 let Model = (() => {
@@ -51,13 +67,13 @@ let Model = (() => {
   };
 
   let isWinner = () => {
-    let player = [Const.playerIdx, Const.playerIdo];
+    let player = [Consts.playerIdx, Consts.playerIdo];
     for (let i = 0; i < player.length; i++) {
-      for (let j = 0; j <= Const.winPositions.length; j++) {
+      for (let j = 0; j <= Consts.winPositions.length; j++) {
         if (
-          board[Const.winPositions[j][0]] === player[i] &&
-          board[Const.winPositions[j][1]] === player[i] &&
-          board[Const.winPositions[j][2]] === player[i]
+          board[Consts.winPositions[j][0]] === player[i] &&
+          board[Consts.winPositions[j][1]] === player[i] &&
+          board[Consts.winPositions[j][2]] === player[i]
         ) {
           return player[i];
         }
@@ -78,7 +94,7 @@ let Model = (() => {
   };
 
   let resetBoard = () => {
-    for (let index = 1; index <= Const.mapLength; index++) {
+    for (let index = 1; index <= Consts.mapLength; index++) {
       board[index] = "";
     }
     return;
