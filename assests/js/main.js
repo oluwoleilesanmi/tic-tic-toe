@@ -1,3 +1,12 @@
+let Random = (() => {
+  let getRandSymbol = function() {
+    return (Math.floor(Math.random() * Math.floor(2)) === 0) ? 
+        Consts.playerIdo : Consts.playerIdx
+  };
+  return { getRandSymbol };
+})();
+
+
 let Player = playerName => {
   let map = new Map();
        
@@ -13,36 +22,29 @@ let Player = playerName => {
   return { setSymbol, getSymbol, getPlayerName };
 };
 
-let Random = (() => {
-  let getRandSymbol = function() {
-    return (Math.floor(Math.random() * Math.floor(2)) === 0) ? Consts.playerIdo : Consts.playerIdx
-  };
-  return { getRandSymbol };
-})();
 
-let Controller = (nameA, nameB) => {
-  let playerA = Player(nameA), playerB = Player(nameB), 
-       whoClicked = playerA.getPlayerName(), restart = false, gameEnded = false;
+let Game = (() => {
+  let playerA = null, playerB = null,
+       gameEnded = false, whoClicked = "";
     
+  let initialize = (a, b) => {
+    playerA=  Player(a);
+    playerB = Player(b);
+    whoClicked = playerA.getPlayerName();
+  }
+  
   let reset = () => {
     Model.resetBoard();
     resetView();
   };
     
-  let setGameEnded = (bol) => {
-      gameEnded = bol;
-  }
-  let setRestart = (bol) => {
-      restart = bol;
-  }
-  
-  let getRestart = () => {
-      return restart;
-  }
-    
   let gameEnd = () => {
     reset();
     gameEnded = true;
+  }
+  
+  let hasEnded = () => {
+    return gameEnded;
   }
   
   let resetView = () => {
@@ -66,40 +68,43 @@ let Controller = (nameA, nameB) => {
       gameEnd()
     }
   };
-       
-  let attachboardListener = () => {
-    document.addEventListener("click", e => {
-      let boardPosClicked = e.target.getAttribute("position"),
-        userInput = e.target.textContent;
-
+    
+  let displaySymbol =  e => {
+    let boardPosClicked = e.target.getAttribute("position"),
+      userInput = e.target.textContent;
       userInput = Number(userInput);
       boardPosClicked = Number(boardPosClicked);
-      if (e.target.matches(".box") && !isNaN(userInput) && !gameEnded) {
+      if (e.target.matches(".box") && !isNaN(userInput)) {
         if (whoClicked === playerA.getPlayerName()) {
-          e.target.textContent = playerA.getSymbol();
-          Model.setValue(boardPosClicked, playerA.getSymbol());
-          whoClicked = playerB.getPlayerName();
-        } else {
-          e.target.textContent = playerB.getSymbol();
-          Model.setValue(boardPosClicked, playerB.getSymbol());
-          whoClicked = playerA.getPlayerName();
+           e.target.textContent = playerA.getSymbol();
+           Model.setValue(boardPosClicked, playerA.getSymbol());
+           whoClicked = playerB.getPlayerName();
+        } else { 
+           e.target.textContent = playerB.getSymbol();
+           Model.setValue(boardPosClicked, playerB.getSymbol());
+           whoClicked = playerA.getPlayerName();
         }
-      } else if (e.target.matches(".box")) {
-        if (!restart) {
-          alert("Click another tile!!!");
-        }
+      } else if (e.target.matches(".box") && !Model.allTilesFilled()) {
+           alert("Click another tile!!!");
       }
       gamePlayResult();
-    });
+  }
+  
+  let attachboardListener = () => {
+    document.addEventListener("click", displaySymbol);
   };
+    
+  let removeboardListener = () => {
+    document.removeEventListener("click", displaySymbol, false);
+  }
 
   let attachSymbol = () => {
     playerA.setSymbol(Random.getRandSymbol());
     playerA.getSymbol() === Consts.playerIdx ? playerB.setSymbol(Consts.playerIdo) : playerB.setSymbol(Consts.playerIdx);
   };
 
-  return { attachboardListener, attachSymbol, reset, setGameEnded, setRestart, getRestart };
-};
+  return { attachboardListener, attachSymbol, reset, initialize, removeboardListener, hasEnded};
+})();
 
 
 let Model = (() => {
@@ -114,13 +119,21 @@ let Model = (() => {
   };
     
   let isTie = () => {
-    return !isWinner() && !isTileEmpty() ? true : false;
+    return !isWinner() && !allTilesFilled() ? true : false;
   };
 
-  let isTileEmpty = () => {
+  let allTilesFilled = () => {
     let bol = false;
     board.forEach(item => {
       if (item === "") bol = true;
+    });
+    return bol;
+  };
+    
+  let allTilesEmpty = () => {
+    let bol = true;
+    board.forEach(item => {
+      if (item != "") bol = false;
     });
     return bol;
   };
@@ -144,42 +157,62 @@ let Model = (() => {
     }
     return false;
   };
-  return { getValue, setValue, isTie, resetBoard, isWinner };
+  return { getValue, setValue, isTie, resetBoard, isWinner, allTilesEmpty, allTilesFilled };
 })();
+
 
 const Consts = (() => {
   let playerIdx = "X";
   let playerIdo = "O";
   let arrLen = 9;
   let winPos = 
-      [[0, 1, 2],[3, 4, 5],[6, 7, 8],[0, 3, 6],[1, 4, 7],[2, 5, 8],[0, 4, 8],[2, 4, 6]];
+      [[0, 1, 2],[3, 4, 5],[6, 7, 8],[0, 3, 6],
+       [1, 4, 7],[2, 5, 8],[0, 4, 8],[2, 4, 6]];
   return { winPos, playerIdo, playerIdx, arrLen };
 })();
 
+
 let App = (() => {
-    let controller = Controller("wole", "ile");
+  let playerA = "", playerB = "", flag = 0;
+  
   let init = () => {
-    startButtonListener();
+    attachStartListener()
+      attachResetListener()
   };
     
-  let startButtonListener = () => {
-    let e = document.querySelector(".start");
-    e.addEventListener("click", () => {
-      if (controller.getRestart()){
-        controller.reset();
-        controller.setGameEnded(false);
-        controller.attachboardListener();
-      }else{
-        controller = Controller(prompt(), prompt());
-        controller.attachSymbol();
-        controller.setGameEnded(false);
-        controller.attachboardListener();
-        controller.reset();
-        controller.setRestart(true); 
-      }
-      
-    });
+  let attachStartListener = () => {
+    startButton = document.querySelector(".start")
+    startButton.addEventListener("click", promptUser)
   };
+    
+  let attachResetListener = () => {
+     let resetButton = document.querySelector(".reset");
+       resetButton.addEventListener("click",() => {
+         if(!Model.allTilesEmpty()){
+            Game.removeboardListener();
+            flag= 0
+            Game.reset();
+          }
+        })
+  };
+    
+  let promptUser = () => {
+    if (flag == 0){
+      playerA = prompt();
+      playerB = prompt();
+      if (playerA != "" && playerB != "") {
+        Game.initialize(playerA, playerB)
+        Game.attachSymbol();
+        Game.attachboardListener();
+      }else if(playerA == "" || playerB == "") {
+         Game.removeboardListener();
+         flag = -1;
+      }
+    }
+      Game.reset();
+      ++flag
+  }
+    
   return { init };
 })();
 
