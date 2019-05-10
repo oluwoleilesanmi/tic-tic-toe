@@ -44,7 +44,23 @@ let App = (nameA, nameB) => {
   let playerA = Player(nameA);
   let playerB = Player(nameB);
   let whoClicked = playerA.getPlayerName();
+  let restart = false;
+  let gameEnded = false;
 
+  let startButtonListener = () => {
+    let e = document.querySelector(".start");
+    e.addEventListener("click", () => {
+      gameEnded = false;
+      attachboardListener();
+      reset();
+      restart = true;
+    });
+  };
+
+  let reset = () => {
+    Model.resetBoard();
+    resetView();
+  };
   let attachboardListener = () => {
     document.addEventListener("click", e => {
       let boardPosClicked = e.target.getAttribute("position"),
@@ -52,7 +68,7 @@ let App = (nameA, nameB) => {
 
       userInput = Number(userInput);
       boardPosClicked = Number(boardPosClicked);
-      if (e.target.matches(".box") && !isNaN(userInput)) {
+      if (e.target.matches(".box") && !isNaN(userInput) && !gameEnded) {
         if (whoClicked === playerA.getPlayerName()) {
           e.target.textContent = playerA.getSymbol();
           Model.setValue(boardPosClicked, playerA.getSymbol());
@@ -63,7 +79,9 @@ let App = (nameA, nameB) => {
           whoClicked = playerA.getPlayerName();
         }
       } else if (e.target.matches(".box")) {
-        alert("Click another tile!!!");
+        if (!restart) {
+          alert("Click another tile!!!");
+        }
       }
       gamePlayResult();
     });
@@ -73,21 +91,21 @@ let App = (nameA, nameB) => {
     if (Model.isWinner()) {
       if (playerA.getSymbol() === Model.isWinner()) {
         alert("Winner is " + playerA.getPlayerName());
-        Model.resetBoard();
-        resetView();
+        reset();
+        gameEnded = true;
       } else {
         alert("Winner is " + playerB.getPlayerName());
-        Model.resetBoard();
-        resetView();
+        reset();
+        gameEnded = true;
       }
     } else if (Model.isTie()) {
       alert("its a tie");
-      Model.resetBoard();
-      resetView();
+      reset();
+      gameEnded = true;
     }
   };
 
-  let setPlayerSymbol = () => {
+  let attachSymbol = () => {
     playerA.setSymbol(Random.getRandSymbol());
     playerA.getSymbol() === Consts.playerIdx
       ? playerB.setSymbol(Consts.playerIdo)
@@ -100,12 +118,24 @@ let App = (nameA, nameB) => {
       box[index].innerHTML = "";
     }
   };
-  return { attachboardListener, setPlayerSymbol };
+
+  return {
+    attachboardListener,
+    attachSymbol,
+    startButtonListener
+  };
 };
 
-let app = App("wole", "ile");
-app.setPlayerSymbol();
-app.attachboardListener();
+let Exec = (() => {
+  let init = () => {
+    let app = App("wole", "ile");
+    app.startButtonListener();
+    app.attachSymbol();
+  };
+  return { init };
+})();
+
+Exec.init();
 
 let Model = (() => {
   let board = ["", "", "", "", "", "", "", "", ""];
