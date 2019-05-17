@@ -1,4 +1,14 @@
-let Random = (() => {
+const Consts = (() => {
+  const playerIdx = "X";
+  const playerIdo = "O";
+  const arrLen = 9;
+  const winPos = 
+      [[0, 1, 2],[3, 4, 5],[6, 7, 8],[0, 3, 6],
+       [1, 4, 7],[2, 5, 8],[0, 4, 8],[2, 4, 6]];
+  return { winPos, playerIdo, playerIdx, arrLen };
+})();
+
+let SymbolGen = (() => {
   let getRandSymbol = function() {
     return (Math.floor(Math.random() * Math.floor(2)) === 0) ? 
         Consts.playerIdo : Consts.playerIdx
@@ -7,26 +17,10 @@ let Random = (() => {
 })();
 
 
-let Player = playerName => {
-  let map = new Map();
-       
-  let setSymbol = symbol => {
-    map.set(playerName, symbol);
-  };
-  let getSymbol = () => {
-    return map.get(playerName);
-  };
-  let getPlayerName = () => {
-    return playerName;
-  };
-  return { setSymbol, getSymbol, getPlayerName };
-};
-
-
 let Game = (() => {
   let playerA = null, playerB = null,
        gameEnded = false, whoClicked = "";
-    
+  
   let initialize = (a, b) => {
     playerA=  Player(a);
     playerB = Player(b);
@@ -34,17 +28,13 @@ let Game = (() => {
   }
   
   let reset = () => {
-    Model.resetBoard();
+    Board.resetBoard();
     resetView();
   };
     
   let gameEnd = () => {
     reset();
     gameEnded = true;
-  }
-  
-  let hasEnded = () => {
-    return gameEnded;
   }
   
   let resetView = () => {
@@ -55,15 +45,15 @@ let Game = (() => {
   };
     
   let gamePlayResult = () => {
-    if (Model.isWinner()) {
-      if (playerA.getSymbol() === Model.isWinner()) {
+    if (Board.isWinner()) {
+      if (playerA.getSymbol() === Board.isWinner()) {
         alert("Winner is " + playerA.getPlayerName());
         gameEnd()
       } else {
         alert("Winner is " + playerB.getPlayerName());
         gameEnd()
       }
-    } else if (Model.isTie()) {
+    } else if (Board.isTie()) {
       alert("its a tie");
       gameEnd()
     }
@@ -77,14 +67,14 @@ let Game = (() => {
       if (e.target.matches(".box") && !isNaN(userInput)) {
         if (whoClicked === playerA.getPlayerName()) {
            e.target.textContent = playerA.getSymbol();
-           Model.setValue(boardPosClicked, playerA.getSymbol());
+           Board.setValue(boardPosClicked, playerA.getSymbol());
            whoClicked = playerB.getPlayerName();
         } else { 
            e.target.textContent = playerB.getSymbol();
-           Model.setValue(boardPosClicked, playerB.getSymbol());
+           Board.setValue(boardPosClicked, playerB.getSymbol());
            whoClicked = playerA.getPlayerName();
         }
-      } else if (e.target.matches(".box") && !Model.allTilesFilled()) {
+      } else if (e.target.matches(".box") && !Board.allTilesFilled()) {
            alert("Click another tile!!!");
       }
       gamePlayResult();
@@ -99,23 +89,23 @@ let Game = (() => {
   }
 
   let attachSymbol = () => {
-    playerA.setSymbol(Random.getRandSymbol());
+    playerA.setSymbol(SymbolGen.getRandSymbol());
     playerA.getSymbol() === Consts.playerIdx ? playerB.setSymbol(Consts.playerIdo) : playerB.setSymbol(Consts.playerIdx);
   };
 
-  return { attachboardListener, attachSymbol, reset, initialize, removeboardListener, hasEnded};
+  return { attachboardListener, attachSymbol, reset, initialize, removeboardListener };
 })();
 
 
-let Model = (() => {
-  let board = ["", "", "", "", "", "", "", "", ""];
+let Board = (() => {
+  let tiles = ["", "", "", "", "", "", "", "", ""];
 
   let getValue = key => {
-    return board[key];
+    return tiles[key];
   };
 
   let setValue = (key, value) => {
-    return (board[key] = value);
+    return (tiles[key] = value);
   };
     
   let isTie = () => {
@@ -124,23 +114,15 @@ let Model = (() => {
 
   let allTilesFilled = () => {
     let bol = false;
-    board.forEach(item => {
+    tiles.forEach(item => {
       if (item === "") bol = true;
-    });
-    return bol;
-  };
-    
-  let allTilesEmpty = () => {
-    let bol = true;
-    board.forEach(item => {
-      if (item != "") bol = false;
     });
     return bol;
   };
 
   let resetBoard = () => {
     for (let index = 0; index < Consts.arrLen; index++) {
-      board[index] = "";
+      tiles[index] = "";
     }
   };
     
@@ -148,8 +130,8 @@ let Model = (() => {
     let player = [Consts.playerIdx, Consts.playerIdo];
     for (let i = 0; i < player.length; i++) {
       for (let j = 0; j < Consts.winPos.length; j++) {
-        if (board[Consts.winPos[j][0]] == player[i] && board[Consts.winPos[j][1]] 
-            == player[i] && board[Consts.winPos[j][2]] == player[i]
+        if (tiles[Consts.winPos[j][0]] == player[i] && tiles[Consts.winPos[j][1]] 
+            == player[i] && tiles[Consts.winPos[j][2]] == player[i]
         ) {
           return player[i];
         }
@@ -157,27 +139,15 @@ let Model = (() => {
     }
     return false;
   };
-  return { getValue, setValue, isTie, resetBoard, isWinner, allTilesEmpty, allTilesFilled };
+  return { getValue, setValue, isTie, resetBoard, isWinner, allTilesFilled };
 })();
-
-
-const Consts = (() => {
-  let playerIdx = "X";
-  let playerIdo = "O";
-  let arrLen = 9;
-  let winPos = 
-      [[0, 1, 2],[3, 4, 5],[6, 7, 8],[0, 3, 6],
-       [1, 4, 7],[2, 5, 8],[0, 4, 8],[2, 4, 6]];
-  return { winPos, playerIdo, playerIdx, arrLen };
-})();
-
 
 let App = (() => {
   let playerA = "", playerB = "", flag = 0;
   
   let init = () => {
     attachStartListener()
-      attachResetListener()
+    attachResetListener()
   };
     
   let attachStartListener = () => {
@@ -188,11 +158,9 @@ let App = (() => {
   let attachResetListener = () => {
      let resetButton = document.querySelector(".reset");
        resetButton.addEventListener("click",() => {
-         if(!Model.allTilesEmpty()){
             Game.removeboardListener();
             flag= 0
             Game.reset();
-          }
         })
   };
     
@@ -215,6 +183,21 @@ let App = (() => {
     
   return { init };
 })();
+
+let Player = playerName => {
+  let map = new Map();
+       
+  let setSymbol = symbol => {
+    map.set(playerName, symbol);
+  };
+  let getSymbol = () => {
+    return map.get(playerName);
+  };
+  let getPlayerName = () => {
+    return playerName;
+  };
+  return { setSymbol, getSymbol, getPlayerName };
+};
 
 App.init();
 
