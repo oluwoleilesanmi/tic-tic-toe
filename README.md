@@ -11,3 +11,8 @@
 - Player game restart will not trigger re-entry of names :heavy_check_mark:
 - Players can reset game :heavy_check_mark:
 - Players can play as many times as they wish until game is reset :heavy_check_mark:
+
+## Run
+
+- Double-click or open **_index.html_** file in browser.
+- Enjoy the game :relaxed:
